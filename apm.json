@@ -1,0 +1,21 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ankushKun/apm-cli/main/apm.schema.json",
+    "name": "AOlearn",
+    "vendor": "@berry",
+    "description": "AOlearn is a APM package that provides implementations of common machine learning algorithms for AO Hyper Parallel Computer. It aims to make machine learning accessible and easy to use within Lua projects.",
+    "main": "main.lua",
+    "version": "0.1.1",
+    "repository": "https://github.com/imortaltatsu/AOlearn",
+    "license": "MIT",
+    "keywords": [
+        "Machine learning",
+        "Scintific Computing",
+        "Statistic Modeling"
+    ],
+    "authors": [],
+    "warnings": {
+        "modifiesGlobalState": false,
+        "installMessage": ""
+    },
+    "dependencies": {}
+}
