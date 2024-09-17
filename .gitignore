@@ -34,3 +34,5 @@ luac.out
 
 #wallet files
 wallet.json
+# APM files
+apm.json
