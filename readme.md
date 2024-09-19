@@ -10,7 +10,7 @@ AOlearn is organized into submodules, each focusing on a specific category of al
 - `AOlearn.linear_regression`: Provides linear regression models.
 - `AOlearn.logistic`: Implements logistic regression for binary classification.
 - `AOlearn.lasso`: Includes Lasso regression for feature selection and regularization.
-- `AOlearn.ridge`: Provides Ridge regression for regularization. 
+- `AOlearn.ridge`: Provides Ridge regression for regularization.
 
 ## Submodule Documentation
 
@@ -19,12 +19,13 @@ AOlearn is organized into submodules, each focusing on a specific category of al
 This submodule provides functions for fitting and predicting with linear regression models.
 
 #### Functions:
-- `fit_linear(X, Y)`: 
+
+- `fit_linear(X, Y)`:
   - Fits a linear regression model to the provided data.
-  - **Parameters:** 
+  - **Parameters:**
     - `X`: A table of arrays, where each array represents a feature.
     - `Y`: An array containing the target values.
-  - **Returns:** 
+  - **Returns:**
     - `gains`: A table containing the learned coefficients (slopes) for each feature.
     - `offset`: The learned intercept (bias).
 - `predict_linear(gains, offset, inputFeatures)`:
@@ -62,7 +63,7 @@ This submodule provides functionality for performing binary classification using
 
 ### `AOlearn.lasso`
 
-This submodule implements Lasso regression, a linear regression model that incorporates L1 regularization. 
+This submodule implements Lasso regression, a linear regression model that incorporates L1 regularization.
 
 #### Functions:
 - `fit_lasso(X, Y, lambda, learningRate, numIterations)`:
@@ -160,7 +161,7 @@ local house_features_lasso = {
 }
 
 -- Fit a Lasso regression model (lambda controls the strength of regularization)
-local weights_lasso, bias_lasso = AOlearn.lasso.fit_lasso(house_features_lasso, house_prices, 0.5) 
+local weights_lasso, bias_lasso = AOlearn.lasso.fit_lasso(house_features_lasso, house_prices, 0.5)
 
 -- Observe the weights - Lasso tends to shrink irrelevant feature weights towards zero
 for i, w in ipairs(weights_lasso) do
@@ -185,7 +186,7 @@ local house_features_ridge = {
 }
 
 -- Fit a Lasso regression model (lambda controls the strength of regularization)
-local weights_ridge, bias_ridge = AOlearn.ridge.fit_ridge(house_features_lasso, house_prices, 0.5) 
+local weights_ridge, bias_ridge = AOlearn.ridge.fit_ridge(house_features_lasso, house_prices, 0.5)
 
 -- Observe the weights - Lasso tends to shrink irrelevant feature weights towards zero
 for i, w in ipairs(weights_ridge) do
@@ -210,13 +211,5 @@ print("Predicted House Price:", predicted_price)
 
 - **Data Preparation:**  It's crucial to have your data in the correct format (tables of features and targets) before using AOlearn's functions.
 - **Feature Engineering:** The success of your models heavily relies on selecting and engineering relevant features.
-- **Model Selection:** Choose the appropriate algorithm (linear, logistic, Lasso, Ridge) based on your problem type (regression or classification) and your goals (prediction accuracy, feature selection, etc.). 
+- **Model Selection:** Choose the appropriate algorithm (linear, logistic, Lasso, Ridge) based on your problem type (regression or classification) and your goals (prediction accuracy, feature selection, etc.).
 - **Hyperparameter Tuning:** Experiment with different hyperparameters (like `learningRate` and `lambda`) to find the best settings for your specific data.
-
-
-## Future Enhancements
-
-- **More Algorithms:** Implement additional machine learning algorithms like support vector machines, decision trees, and clustering methods.
-- **Data Preprocessing:** Include functions for data normalization, standardization, and handling missing values.
-- **Model Evaluation:** Add functions to calculate evaluation metrics such as mean squared error, R-squared, accuracy, precision, and recall. 
-- **Visualization:** Consider adding basic plotting functionalities to visualize data and model results. 
