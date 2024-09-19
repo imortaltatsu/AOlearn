@@ -200,9 +200,7 @@ local function CalculateLinearRegression(X, Y)
 
 
 
--- Example Usage:
-
-AOlearn = {
+local AOlearn = {
     linear_regression = {
         fit_linear = CalculateLinearRegression,
         predict_linear = CalculateResult
