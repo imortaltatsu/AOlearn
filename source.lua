@@ -1,226 +1,187 @@
+local function sigmoid(z)
+  return 1 / (1 + math.exp(-z))
+end
 
-local function CalculateLinearRegression(X, Y)
-    -- Input:
-    --   X: A table of arrays, where each array represents a feature (e.g., X[1] is x1, X[2] is x2, etc.)
-    --   Y: An array containing the target values (y)
-    -- Output: A table of gains (slopes) for each feature and the offset (y-intercept)
+local function dotProduct(a, b)
+  if #a ~= #b then error("Arrays must be of same length for dot product") end
+  local sum = 0
+  for i = 1, #a do sum = sum + a[i] * b[i] end
+  return sum
+end
 
-    -- Check if inputs are valid
-      if not (X and Y and # X > 0 and # Y == # X[1]) then
-          error("Invalid input: X should be a table of arrays, and Y should be an array of equal length to each array in X.")
-      end
-      local numFeatures = # X
-      local numDataPoints = # Y
+local function linearRegressionGradientDescent(X, y, learningRate, numIterations)
+  local n = #X
+  local m = #X[1] + 1              -- Add 1 for the bias term
+  local theta = {}
+  for i = 1, m do theta[i] = 0 end -- Initialize weights and bias to 0
 
-    -- Create a table to store sums for each feature and y
-      local sums = {}
-      for j = 1, numFeatures do
-          sums[j] = 0
-      end
-      sums[numFeatures + 1] = 0  -- Extra entry for sum of Y
-      local sumProducts = {} -- Table to store sum of products (x1*y, x2*y, etc.)
-      for j = 1, numFeatures do
-          sumProducts[j] = 0
-      end
-      local sumSquares = {} -- Table to store sum of squares for each feature
-      for j = 1, numFeatures do
-          sumSquares[j] = 0
+  for iteration = 1, numIterations do
+      local predictions = {}
+      for i = 1, n do
+          local sample = { 1 } -- Add 1 for bias term
+          for j = 1, #X[i] do sample[#sample + 1] = X[i][j] end
+          predictions[i] = dotProduct(theta, sample)
       end
 
-    -- Calculate the sums
-      for i = 1, numDataPoints do
-          for j = 1, numFeatures do
-              sums[j] = sums[j] + X[j][i]
-              sumProducts[j] = sumProducts[j] + X[j][i] * Y[i]
-              sumSquares[j] = sumSquares[j] + X[j][i] * X[j][i]
+      local gradients = {}
+      for j = 1, m do gradients[j] = 0 end
+
+      for i = 1, n do
+          local error = predictions[i] - y[i]
+          local sample = { 1 } -- Add 1 for bias term
+          for j = 1, #X[i] do sample[#sample + 1] = X[i][j] end
+          for j = 1, m do
+              gradients[j] = gradients[j] + error * sample[j]
           end
-          sums[numFeatures + 1] = sums[numFeatures + 1] + Y[i]
       end
 
-    -- Calculate the gains (slopes) for each feature
-      local gains = {}
-      for j = 1, numFeatures do
-          gains[j] = (numDataPoints * sumProducts[j] - sums[j] * sums[numFeatures + 1]) / (numDataPoints * sumSquares[j] - sums[j] * sums[j])
-      end
-
-    -- Calculate the offset (y-intercept)
-      local offset = (sums[numFeatures + 1] - (gains[1] * sums[1])) / numDataPoints -- Using x1 for offset calculation, you can adjust if needed
-      return gains, offset
-  end
-
-  local function CalculateResult(gains, offset, inputFeatures)
-    -- Input:
-    --   gains: A table containing the gains (slopes) for each feature
-    --   offset: The offset (y-intercept)
-    --   inputFeatures: A table containing the input values for each feature
-    --                  (e.g., {2, 5, 1} for x1=2, x2=5, x3=1)
-    -- Output:
-    --   The calculated result (predicted y value)
-
-    -- Check if inputs are valid
-      if not (gains and offset and inputFeatures and # gains == # inputFeatures) then
-          error("Invalid input: Ensure gains, offset, and inputFeatures are provided correctly.")
-      end
-      local result = offset
-      for i = 1, # gains do
-          result = result + gains[i] * inputFeatures[i]
-      end
-      return result
-  end
-
-  -- Helper Function: Sigmoid for Logistic Regression
-  local function sigmoid(z)
-      return 1 / (1 + math.exp(- z))
-  end
-
-  -- Helper Function: Sign for Lasso/Ridge Regression
-  function math.sign(x)
-      if x > 0 then
-          return 1
-      elseif x < 0 then
-          return -1
-      else
-          return 0
+      for j = 1, m do
+          theta[j] = theta[j] - learningRate * (gradients[j] / n)
       end
   end
+  return theta
+end
 
-  -- Logistic Regression with Gradient Descent
-  local function logisticRegression(X, y, learningRate, numIterations)
-      local numFeatures = # X[1]
-      local numSamples = # X
-      local weights = {}
-      for i = 1, numFeatures do
-          weights[i] = 0
-      end  -- Initialize weights to 0
-      local bias = 0
-      for iteration = 1, numIterations do
-          local dw = {}
-          for i = 1, numFeatures do
-              dw[i] = 0
-          end
-          local db = 0
-          for i = 1, numSamples do
-              local prediction = sigmoid(sumOfProducts(weights, X[i]) + bias)
-              local error = y[i] - prediction
-              for j = 1, numFeatures do
-                  dw[j] = dw[j] + error * X[i][j]
-              end
-              db = db + error
-          end
-          for j = 1, numFeatures do
-              weights[j] = weights[j] + (learningRate * dw[j]) / numSamples
-          end
-          bias = bias + (learningRate * db) / numSamples
-      end
-      return weights, bias
-  end
+function math.sign(x)
+  if x < 0 then return -1 end
+  if x > 0 then return 1 end
+  return 0
+end
 
-  local function sumOfProducts(arr1, arr2)
-      if # arr1 ~= # arr2 then
-          error("Arrays must have the same length")
-      end
-      local sum = 0
-      for i = 1, # arr1 do
-          sum = sum + arr1[i] * arr2[i]
-      end
-      return sum
-  end
+local function logisticRegression(X, y, learningRate, numIterations)
+  local n = #X
+  local m = #X[1]
+  local weights = {}
+  for i = 1, m do weights[i] = 0 end  -- Initialize weights to 0
+  local bias = 0   --Initialize bias to zero
 
-  -- Function to Predict using Logistic Regression
-  local function predictLogistic(weights, bias, features)
-      return sigmoid(sumOfProducts(weights, features) + bias)
-  end
-  local function CalculateRegularizedLinearRegressionnew(X, Y, regularizationType, lambda, learningRate, numIterations)
-    -- Input: 
-    --   X: A table of arrays, where each array represents a feature 
-    --   Y: An array containing the target values 
-    --   regularizationType: "lasso" or "ridge" 
-    --   lambda: Regularization parameter
-    --   learningRate: Learning rate for gradient descent
-    --   numIterations: Number of iterations for gradient descent 
-    -- Output:table of gains (slopes) for each feature and the offset (bias)
-  
-    -- Input Validation
-    if not (X and Y and #X > 0 and #Y == #X) then
-      error("Invalid input: X and Y should be tables of equal length.")
+  for iteration = 1, numIterations do
+    local dw = {}
+    for i = 1, m do dw[i] = 0 end
+    local db = 0
+
+    for i = 1, n do
+      local z = dotProduct(weights, X[i]) + bias
+      local prediction = sigmoid(z)
+      local error = prediction - y[i] --Using prediction - y[i] for consistency
+      for j = 1, m do
+        dw[j] = dw[j] + error * X[i][j]
+      end
+      db = db + error
     end
-  
-    local numFeatures = #X[1]
-    local numDataPoints = #Y
-    lambda = lambda or 0.1
-    learningRate = learningRate or 0.01
-    numIterations = numIterations or 1000
-  
-    -- Initialize weights and bias
-    local weights = {}
-    for i = 1, numFeatures do
-      weights[i] = 0
+    for j = 1, m do
+        weights[j] = weights[j] - learningRate * dw[j] / n
     end
-    local bias = 0
-  
-    -- Helper function to calculate the dot product of two arrays
-    local function dotProduct(a, b)
-      if #a ~= #b then error("Arrays must be of same length for dot product") end
-      local sum = 0
-      for i = 1, #a do sum = sum + a[i] * b[i] end
-      return sum
-    end
-  
-    -- Gradient Descent with Regularization
-    for iteration = 1, numIterations do
-      local dw = {} 
-      for i = 1, numFeatures do dw[i] = 0 end
-      local db = 0
-  
-      for i = 1, numDataPoints do
-        local prediction = dotProduct(weights, X[i]) + bias
-        local error = prediction - Y[i]
-  
-        -- Calculate gradients
-        for j = 1, numFeatures do
-          dw[j] = dw[j] + error * X[i][j]
-        end
-        db = db + error
-      end
-  
-      -- Update weights and bias
-      for j = 1, numFeatures do
-        if regularizationType == "lasso" then
-          weights[j] = weights[j] - learningRate * ( (dw[j] / numDataPoints) + lambda * math.sign(weights[j]) )
-        elseif regularizationType == "ridge" then
-          weights[j] = weights[j] - learningRate * ( (dw[j] / numDataPoints) + 2 * lambda * weights[j] )
-        else
-          error("Invalid regularization type. Choose 'lasso' or 'ridge'.")
-        end
-      end
-      bias = bias - learningRate * (db / numDataPoints)
-    end
+    bias = bias - learningRate * db / n
+
+  end
     return weights, bias
-    end
+end
+
+local function CalculateRegularizedLinearRegression(X, y, regularizationType, lambda, learningRate, numIterations)
+  local n = #X
+  local m = #X[1] + 1                -- Add 1 for the bias term
+  local theta = {}
+  for i = 1, m do theta[i] = 0 end   -- Initialize weights and bias to zero
+
+  for iteration = 1, numIterations do
+      local predictions = {}
+      for i = 1, n do
+          local sample = { 1 }
+          for j = 1, #X[i] do sample[#sample + 1] = X[i][j] end
+          predictions[i] = dotProduct(theta, sample)
+      end
+
+      local gradients = {}
+      for j = 1, m do gradients[j] = 0 end
+
+      for i = 1, n do
+          local error = predictions[i] - y[i]
+          local sample = { 1 }
+          for j = 1, #X[i] do sample[#sample + 1] = X[i][j] end
+          for j = 1, m do
+              gradients[j] = gradients[j] + error * sample[j]
+          end
+      end
+
+      --Update weights with regularization term
+      for j = 1, m do
+          local regTerm = 0
+          if regularizationType == "lasso" then
+              regTerm = lambda * math.sign(theta[j])
+          elseif regularizationType == "ridge" then
+              regTerm = 2 * lambda * theta[j]
+          end
+
+          theta[j] = theta[j] - learningRate * (gradients[j] / n + regTerm)
+      end
+  end
+
+  return theta
+end
 
 
 
 local AOlearn = {
-    linear_regression = {
-        fit_linear = CalculateLinearRegression,
-        predict_linear = CalculateResult
-    },
-    logistic = {
-        fit_logistic = logisticRegression,
-        predict_logistic = predictLogistic
-      },
-      lasso = {
-        fit_lasso = function(X, Y, lambda, learningRate, numIterations)
-              return CalculateRegularizedLinearRegressionnew(X, Y, "lasso", lambda, learningRate, numIterations)
-          end,
-          predict_lasso = CalculateResult -- Same prediction function as linear
-      },
-      ridge = {
-          fit_ridge = function(X, Y, lambda, learningRate, numIterations)
-              return CalculateRegularizedLinearRegressionnew(X, Y, "ridge", lambda, learningRate, numIterations)
-          end,
-          predict_ridge = CalculateResult -- Same prediction function as linear
-      }
-  }
+  linear_regression = {
+      fit_linear = function(X, y, learningRate, numIterations)
+          local theta = linearRegressionGradientDescent(X, y, learningRate, numIterations)
+          return theta   -- Return coefficients, means, stdevs
+      end,
 
-  return AOlearn
+
+      predict_linear = function(theta, features)   --Needs means and stdevs
+          local standardizedFeatures = {}
+          for i = 1, #features do
+              if stdevs[i] ~= 0 then
+                  standardizedFeatures[i] = (features[i] - means[i]) / stdevs[i]
+              else
+                  standardizedFeatures[i] = 0
+              end
+          end
+
+          local sample = { 1 }
+          for i = 1, #standardizedFeatures do
+              table.insert(sample, standardizedFeatures[i])
+          end
+          return dotProduct(theta, sample)
+      end
+  },
+
+
+  logistic = {
+      fit_logistic = function(X, y, learningRate, numIterations)
+          return logisticRegression(standardizeFeatures(X), y, learningRate, numIterations)
+      end,
+      predict_logistic_sigmoid = function(weights, bias, features)
+          return sigmoid(dotProduct(weights, features) + bias)
+      end
+
+  },
+
+  lasso = {
+      fit_lasso = function(X, y, lambda, learningRate, numIterations)
+          return CalculateRegularizedLinearRegression(standardizeFeatures(X), y, "lasso", lambda, learningRate,
+              numIterations)
+      end,
+      predict_lasso = function(theta, features)                       -- Assuming features are already standardized
+          local sample = { 1 }                                        --Add bias term
+          for _, f in ipairs(features) do table.insert(sample, f) end --Add features
+          return dotProduct(theta, sample)
+      end
+  },
+
+  ridge = {
+      fit_ridge = function(X, y, lambda, learningRate, numIterations)
+          return CalculateRegularizedLinearRegression(standardizeFeatures(X), y, "ridge", lambda, learningRate,
+              numIterations)
+      end,
+      predict_ridge = function(theta, features)                       -- Assuming features are already standardized
+          local sample = { 1 }                                        --Add bias term
+          for _, f in ipairs(features) do table.insert(sample, f) end --Add features
+          return dotProduct(theta, sample)
+      end
+  }
+}
+
+return AOlearn
