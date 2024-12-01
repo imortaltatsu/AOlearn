@@ -4,7 +4,7 @@
     "vendor": "@berry",
     "description": "AOlearn is a APM package that provides implementations of common machine learning algorithms for AO Hyper Parallel Computer. It aims to make machine learning accessible and easy to use within Lua projects.",
     "main": "source.lua",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "repository": "https://github.com/imortaltatsu/AOlearn",
     "license": "MIT",
     "keywords": [
