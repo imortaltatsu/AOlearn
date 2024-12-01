@@ -120,34 +120,19 @@ local function CalculateRegularizedLinearRegression(X, y, regularizationType, la
   return theta
 end
 
-
-
 local AOlearn = {
   linear_regression = {
       fit_linear = function(X, y, learningRate, numIterations)
           local theta = linearRegressionGradientDescent(X, y, learningRate, numIterations)
-          return theta   -- Return coefficients, means, stdevs
+          return theta   -- Return coefficients
       end,
 
-
-      predict_linear = function(theta, features)   --Needs means and stdevs
-          local standardizedFeatures = {}
-          for i = 1, #features do
-              if stdevs[i] ~= 0 then
-                  standardizedFeatures[i] = (features[i] - means[i]) / stdevs[i]
-              else
-                  standardizedFeatures[i] = 0
-              end
-          end
-
-          local sample = { 1 }
-          for i = 1, #standardizedFeatures do
-              table.insert(sample, standardizedFeatures[i])
-          end
+      predict_linear = function(theta, features)
+          local sample = { 1 } -- Add bias term
+          for i = 1, #features do sample[#sample + 1] = features[i] end -- Add features
           return dotProduct(theta, sample)
       end
   },
-
 
   logistic = {
       fit_logistic = function(X, y, learningRate, numIterations)
@@ -161,24 +146,22 @@ local AOlearn = {
 
   lasso = {
       fit_lasso = function(X, y, lambda, learningRate, numIterations)
-          return CalculateRegularizedLinearRegression(X, y, "lasso", lambda, learningRate,
-              numIterations)
+          return CalculateRegularizedLinearRegression(X, y, "lasso", lambda, learningRate, numIterations)
       end,
-      predict_lasso = function(theta, features)                       -- Assuming features are already standardized
-          local sample = { 1 }                                        --Add bias term
-          for _, f in ipairs(features) do table.insert(sample, f) end --Add features
+      predict_lasso = function(theta, features)
+          local sample = { 1 } -- Add bias term
+          for i = 1, #features do sample[#sample + 1] = features[i] end -- Add features
           return dotProduct(theta, sample)
       end
   },
 
   ridge = {
       fit_ridge = function(X, y, lambda, learningRate, numIterations)
-          return CalculateRegularizedLinearRegression(X, y, "ridge", lambda, learningRate,
-              numIterations)
+          return CalculateRegularizedLinearRegression(X, y, "ridge", lambda, learningRate, numIterations)
       end,
-      predict_ridge = function(theta, features)                       -- Assuming features are already standardized
-          local sample = { 1 }                                        --Add bias term
-          for _, f in ipairs(features) do table.insert(sample, f) end --Add features
+      predict_ridge = function(theta, features)
+          local sample = { 1 } -- Add bias term
+          for i = 1, #features do sample[#sample + 1] = features[i] end -- Add features
           return dotProduct(theta, sample)
       end
   }

@@ -36,3 +36,6 @@ luac.out
 wallet.json
 # APM files
 apm.json
+
+#all the files in dist folder
+dist/*
