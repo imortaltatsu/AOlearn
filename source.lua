@@ -151,7 +151,7 @@ local AOlearn = {
 
   logistic = {
       fit_logistic = function(X, y, learningRate, numIterations)
-          return logisticRegression(standardizeFeatures(X), y, learningRate, numIterations)
+          return logisticRegression(X, y, learningRate, numIterations)
       end,
       predict_logistic_sigmoid = function(weights, bias, features)
           return sigmoid(dotProduct(weights, features) + bias)
@@ -161,7 +161,7 @@ local AOlearn = {
 
   lasso = {
       fit_lasso = function(X, y, lambda, learningRate, numIterations)
-          return CalculateRegularizedLinearRegression(standardizeFeatures(X), y, "lasso", lambda, learningRate,
+          return CalculateRegularizedLinearRegression(X, y, "lasso", lambda, learningRate,
               numIterations)
       end,
       predict_lasso = function(theta, features)                       -- Assuming features are already standardized
@@ -173,7 +173,7 @@ local AOlearn = {
 
   ridge = {
       fit_ridge = function(X, y, lambda, learningRate, numIterations)
-          return CalculateRegularizedLinearRegression(standardizeFeatures(X), y, "ridge", lambda, learningRate,
+          return CalculateRegularizedLinearRegression(X, y, "ridge", lambda, learningRate,
               numIterations)
       end,
       predict_ridge = function(theta, features)                       -- Assuming features are already standardized
