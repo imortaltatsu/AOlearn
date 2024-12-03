@@ -1,4 +1,6 @@
-
+LEGACY PACKAGE WILL PROBABLY NO LONGEL BE OPEN SOURCE 
+please use the module process TO SPAWN A AO process
+qG-uo90351vUF7WPmUcObFtk7NU1isZYdPS0r2yQdKY
 # AOlearn: An AO Machine Learning Package
 
 AOlearn is a APM package that provides implementations of common machine learning algorithms for AO Hyper Parallel Computer. It aims to make machine learning accessible and easy to use within Lua projects.
